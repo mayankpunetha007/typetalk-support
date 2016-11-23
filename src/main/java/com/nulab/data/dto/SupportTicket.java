@@ -1,10 +1,8 @@
 package com.nulab.data.dto;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by mayan on 11/19/2016.
@@ -38,6 +36,12 @@ public class SupportTicket implements Serializable {
     @Column(nullable = false)
     private String topic;
 
+    @OneToMany
+    List<ChatDetails> chatDetails;
+
+    @Column
+    private Long topicId;
+
 
 
     public Long getId() {
@@ -70,5 +74,29 @@ public class SupportTicket implements Serializable {
 
     public void setUserMail(String userMail) {
         this.userMail = userMail;
+    }
+
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
+    public List<ChatDetails> getChatDetails() {
+        return chatDetails;
+    }
+
+    public void setChatDetails(List<ChatDetails> chatDetails) {
+        this.chatDetails = chatDetails;
+    }
+
+    public Long getTopicId() {
+        return topicId;
+    }
+
+    public void setTopicId(Long topicId) {
+        this.topicId = topicId;
     }
 }

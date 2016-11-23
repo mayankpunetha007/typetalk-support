@@ -33,7 +33,7 @@ public class RegisterationTest {
     private ApplicationService applicationService;
 
     @InjectMocks
-    private Registeration registeration;
+    private Api registeration;
 
     private MockMvc mockMvc;
 

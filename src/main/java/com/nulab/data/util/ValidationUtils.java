@@ -1,6 +1,8 @@
 package com.nulab.data.util;
 
 import com.nulab.common.InputValidationUtils;
+import com.nulab.config.ApplicationConfig;
+import com.nulab.data.dto.SupportTicket;
 import com.nulab.data.pojo.NewSupportRegistration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -21,18 +23,28 @@ public class ValidationUtils {
     @Autowired
     private InputValidationUtils inputValidationUtils;
 
-    public static String invalidTopicSubject;
-
-    public static String invalidEmail;
+    @Autowired
+    private ApplicationConfig applicationConfig;
 
 
     public List<String> validate(NewSupportRegistration newSupportRegistration){
         List<String> errors = new ArrayList<String>();
         if(!inputValidationUtils.validateEmail(newSupportRegistration.getEmail())){
-            errors.add(invalidEmail);
+            errors.add(applicationConfig.getInvalidEmail());
         }
         if(newSupportRegistration.getRequestTopic().length() == 0  || newSupportRegistration.getRequestTopic().length() > 60){
-            errors.add(invalidTopicSubject);
+            errors.add(applicationConfig.getInvalidTopicSubject());
+        }
+        return errors;
+    }
+
+    public List<String> validate(SupportTicket supportTicket, String accessToken){
+        List<String> errors = new ArrayList<String>();
+        if(supportTicket == null){
+            errors.add(applicationConfig.getUnauthorized());
+        }
+        if(!supportTicket.getAccessKey().equals(accessToken)){
+            errors.add(applicationConfig.getUnauthorized());
         }
         return errors;
     }
@@ -43,21 +55,5 @@ public class ValidationUtils {
 
     public void setInputValidationUtils(InputValidationUtils inputValidationUtils) {
         this.inputValidationUtils = inputValidationUtils;
-    }
-
-    public static String getInvalidTopicSubject() {
-        return invalidTopicSubject;
-    }
-
-    public static void setInvalidTopicSubject(String invalidTopicSubject) {
-        ValidationUtils.invalidTopicSubject = invalidTopicSubject;
-    }
-
-    public static String getInvalidEmail() {
-        return invalidEmail;
-    }
-
-    public static void setInvalidEmail(String invalidEmail) {
-        ValidationUtils.invalidEmail = invalidEmail;
     }
 }

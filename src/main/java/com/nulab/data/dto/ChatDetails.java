@@ -8,6 +8,7 @@ import java.util.List;
 /**
  * Created by mayan on 11/19/2016.
  */
+@Entity
 public class ChatDetails implements Serializable {
 
     @Id
@@ -20,8 +21,8 @@ public class ChatDetails implements Serializable {
     @Column(nullable = false)
     private String chatContent;
 
-    @ManyToOne(fetch=FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<SupportInfo> supportInfo;
+    @ManyToOne
+    SupportTicket supportTicket;
 
     @Column(nullable = false)
     private Date time;
@@ -50,12 +51,12 @@ public class ChatDetails implements Serializable {
         this.chatContent = chatContent;
     }
 
-    public List<SupportInfo> getSupportInfo() {
-        return supportInfo;
+    public SupportTicket getSupportTicket() {
+        return supportTicket;
     }
 
-    public void setSupportInfo(List<SupportInfo> supportInfo) {
-        this.supportInfo = supportInfo;
+    public void setSupportTicket(SupportTicket supportTicket) {
+        this.supportTicket = supportTicket;
     }
 
     public Date getTime() {
