@@ -13,7 +13,7 @@ import javax.mail.internet.MimeMessage;
 import java.util.Properties;
 
 /**
- * Created by mayan on 11/20/2016.
+ * Service to send authorization mail to the user
  */
 @Service("emailSendingService")
 @ConfigurationProperties
@@ -48,11 +48,21 @@ public class EmailSendingService {
         props.put("mail.smtp.password", applicationConfig.getGmailPassword());
     }
 
+    /**
+     * Send activation and support group url mail to the given email Id with the given user id and accesCode
+     * Please ensure that baseurl is correct in application.properties to make sure the url sent to the user
+     * is correct
+     * @param email
+     * @param userId
+     * @param accessCode
+     * @throws MessagingException
+     */
+
     public void sendNewSupportEmail(String email, Long userId, String accessCode) throws MessagingException {
 
         logger.info("Recieved request to send mail");
 
-        String url = String.format("%s/%s/%s/%s", applicationConfig.baseUrl, "support", userId, accessCode);
+        String url = String.format("%s/%s/%s/%s", ApplicationConfig.baseUrl, "support", userId, accessCode);
         Message message = new MimeMessage(session);
         message.setFrom(new InternetAddress(applicationConfig.getGmailId()));
         message.setRecipients(Message.RecipientType.TO,

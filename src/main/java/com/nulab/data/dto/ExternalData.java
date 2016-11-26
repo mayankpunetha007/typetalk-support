@@ -1,16 +1,16 @@
 package com.nulab.data.dto;
 
-import com.nulab.data.pojo.inner.Account;
-import com.nulab.data.pojo.inner.Topic;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 /**
- * Created by mayan on 11/19/2016.
+ * Contains data from streaming API which ones streamed is moved to chat details
  */
 @Component
 @Entity
@@ -34,6 +34,9 @@ public class ExternalData implements Serializable {
 
     @Column(nullable = false)
     private boolean support;
+
+    @Column
+    private String message;
 
     public Long getId() {
         return id;
@@ -81,5 +84,13 @@ public class ExternalData implements Serializable {
 
     public void setSupport(boolean support) {
         this.support = support;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

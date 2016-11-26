@@ -1,29 +1,28 @@
 package com.nulab.data.dto;
 
+import org.springframework.stereotype.Component;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 /**
- * Created by mayan on 11/19/2016.
+ * Contains the conversation between customer and support representatives organised into topics
  */
+@Component
 @Entity
 public class ChatDetails implements Serializable {
 
+    @ManyToOne
+    private
+    SupportTicket supportTicket;
     @Id
     @GeneratedValue
     private Long id;
-
     @Column(nullable = false)
     private boolean support;
-
     @Column(nullable = false)
     private String chatContent;
-
-    @ManyToOne
-    SupportTicket supportTicket;
-
     @Column(nullable = false)
     private Date time;
 
@@ -66,4 +65,5 @@ public class ChatDetails implements Serializable {
     public void setTime(Date time) {
         this.time = time;
     }
+
 }

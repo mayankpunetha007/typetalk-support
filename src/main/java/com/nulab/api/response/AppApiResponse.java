@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by mayan on 11/20/2016.
+ * Generic Class for API response
  */
-public class AppApiResponse<T> implements Serializable{
+public class AppApiResponse<T> implements Serializable {
 
     private boolean errors = false;
 
-    private List<String> errorMessages = new ArrayList<String>();
+    private List<String> errorMessages = new ArrayList<>();
 
     private T response;
 
@@ -28,7 +28,7 @@ public class AppApiResponse<T> implements Serializable{
     }
 
     public void setErrorMessages(List<String> errorMessages) {
-        this.errors =  true;
+        this.errors = true;
         this.errorMessages = errorMessages;
     }
 

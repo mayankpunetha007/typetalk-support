@@ -1,56 +1,59 @@
 package com.nulab.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * Created by mayan on 11/20/2016.
+ * Read all properties from application.properties
+ * And initialize Web Configuration
  */
 @Component
 @ConfigurationProperties
 @Configuration
-public class ApplicationConfig {
+@EnableWebMvc
+public class ApplicationConfig extends WebMvcConfigurerAdapter {
 
-    public String invalidTopicSubject;
+    private static String invalidTopicSubject;
 
-    public String invalidEmail;
+    private static String invalidEmail;
 
-    public String gmailId;
+    private static String gmailId;
 
-    public String gmailPassword;
+    private static String gmailPassword;
 
-    public String unauthorized;
+    private static String unauthorized;
 
-    private String typetalkClientId;
+    public static String baseUrl;
 
-    private String typetalkClientSecret;
+    private static String typetalkClientId;
 
-    private List<String> typetalkSupportGroups;
+    private static String typetalkClientSecret;
 
-    private List<String> typetalkSupportAccountId;
+    private static List<String> typetalkSupportGroups;
 
-    private String typetalkOrganisation;
+    private static List<String> typetalkSupportAccountId;
 
-    public String baseUrl;
-
-    public static boolean isSupportAccount(Long id) {
-        return false;
-    }
-
-    public static boolean isGuestAccount(Long id) {
-        return false;
-    }
+    private static String typetalkOrganisation;
+    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     public String getTypetalkClientId() {
         return typetalkClientId;
     }
 
     public void setTypetalkClientId(String typetalkClientId) {
-        this.typetalkClientId = typetalkClientId;
+        ApplicationConfig.typetalkClientId = typetalkClientId;
     }
 
     public String getTypetalkClientSecret() {
@@ -58,23 +61,19 @@ public class ApplicationConfig {
     }
 
     public void setTypetalkClientSecret(String typetalkClientSecret) {
-        this.typetalkClientSecret = typetalkClientSecret;
-    }
-
-    public void setTypetalkSupportGroups(List<String> typetalkSupportGroups) {
-        this.typetalkSupportGroups = typetalkSupportGroups;
-    }
-
-    public void setTypetalkSupportAccountId(List<String> typetalkSupportAccountId) {
-        this.typetalkSupportAccountId = typetalkSupportAccountId;
+        ApplicationConfig.typetalkClientSecret = typetalkClientSecret;
     }
 
     public List<String> getTypetalkSupportGroups() {
         return typetalkSupportGroups;
     }
 
+    public void setTypetalkSupportGroups(List<String> typetalkSupportGroups) {
+        ApplicationConfig.typetalkSupportGroups = typetalkSupportGroups;
+    }
+
     public void setTypettalkSupportGroups(String typettalkSupportGroups) {
-        this.typetalkSupportGroups = Arrays.asList(typettalkSupportGroups.split(","));
+        typetalkSupportGroups = Arrays.asList(typettalkSupportGroups.split(","));
     }
 
     public String getTypetalkOrganisation() {
@@ -82,15 +81,19 @@ public class ApplicationConfig {
     }
 
     public void setTypetalkOrganisation(String typetalkOrganisation) {
-        this.typetalkOrganisation = typetalkOrganisation;
+        ApplicationConfig.typetalkOrganisation = typetalkOrganisation;
     }
 
     public List<String> getTypetalkSupportAccountId() {
         return typetalkSupportAccountId;
     }
 
+    public void setTypetalkSupportAccountId(List<String> typetalkSupportAccountId) {
+        ApplicationConfig.typetalkSupportAccountId = typetalkSupportAccountId;
+    }
+
     public void setTypettalkSupportAccountId(String typettalkSupportAccountId) {
-        this.typetalkSupportAccountId = Arrays.asList(typettalkSupportAccountId.split(","));
+        typetalkSupportAccountId = Arrays.asList(typettalkSupportAccountId.split(","));
     }
 
     public String getInvalidTopicSubject() {
@@ -98,7 +101,7 @@ public class ApplicationConfig {
     }
 
     public void setInvalidTopicSubject(String invalidTopicSubject) {
-        this.invalidTopicSubject = invalidTopicSubject;
+        ApplicationConfig.invalidTopicSubject = invalidTopicSubject;
     }
 
     public String getInvalidEmail() {
@@ -106,7 +109,7 @@ public class ApplicationConfig {
     }
 
     public void setInvalidEmail(String invalidEmail) {
-        this.invalidEmail = invalidEmail;
+        ApplicationConfig.invalidEmail = invalidEmail;
     }
 
     public String getGmailId() {
@@ -114,7 +117,7 @@ public class ApplicationConfig {
     }
 
     public void setGmailId(String gmailId) {
-        this.gmailId = gmailId;
+        ApplicationConfig.gmailId = gmailId;
     }
 
     public String getGmailPassword() {
@@ -122,7 +125,7 @@ public class ApplicationConfig {
     }
 
     public void setGmailPassword(String gmailPassword) {
-        this.gmailPassword = gmailPassword;
+        ApplicationConfig.gmailPassword = gmailPassword;
     }
 
     public String getBaseUrl() {
@@ -130,7 +133,7 @@ public class ApplicationConfig {
     }
 
     public void setBaseUrl(String baseUrl) {
-        this.baseUrl = baseUrl;
+        ApplicationConfig.baseUrl = baseUrl;
     }
 
     public String getUnauthorized() {
@@ -138,7 +141,32 @@ public class ApplicationConfig {
     }
 
     public void setUnauthorized(String unauthorized) {
-        this.unauthorized = unauthorized;
+        ApplicationConfig.unauthorized = unauthorized;
+    }
+
+    public static boolean isSupportAccount(Long id) {
+        return typetalkSupportAccountId.contains(id+"");
+    }
+
+    @Bean
+    public InternalResourceViewResolver internalResourceViewResolver() {
+        InternalResourceViewResolver internalResourceViewResolver = new InternalResourceViewResolver();
+        internalResourceViewResolver.setPrefix("/WEB-INF/");
+        internalResourceViewResolver.setRedirectContextRelative(true);
+        return internalResourceViewResolver;
+    }
+
+    @Override
+    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+        configurer.enable();
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/js/**").addResourceLocations("/WEB-INF/js/")
+                .setCachePeriod(0);
+        registry.addResourceHandler("/css/**").addResourceLocations("/WEB-INF/css/")
+                .setCachePeriod(0);
     }
 }
 

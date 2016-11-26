@@ -1,69 +1,26 @@
 package com.nulab.data.typetalk;
-/**
- * The MIT License
- *
- * Copyright (c) 2009 Adam MacBeth
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
 
-import org.springframework.stereotype.Service;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import javax.net.SocketFactory;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
 import java.net.Socket;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import javax.net.SocketFactory;
-import javax.net.ssl.SSLSocketFactory;
-
-/**
- * An implementation of a WebSocket protocol client.
- */
-public class WebSocketClient extends Thread {
-    /** The url. */
+public class WebSocketClient {
     private URI mUrl;
 
-    /** The socket. */
     private Socket mSocket;
 
-    /** Whether the handshake is complete. */
     private boolean mHandshakeComplete;
 
-    /** The socket input stream. */
     private InputStream mInput;
 
-    /** The socket mOutput stream. */
     private OutputStream mOutput;
 
-    /** The external headers. */
     private HashMap<String, String> mHeaders;
 
-    /**
-     * Creates a new WebSocket targeting the specified URL.
-     * @param url The URL for the socket.
-     */
     public WebSocketClient(URI url) {
         mUrl = url;
 
@@ -73,24 +30,14 @@ public class WebSocketClient extends Thread {
         }
     }
 
-    /**
-     * Sets extra headers to be sent.
-     * @param headers A hash of header name-values.
-     */
     public void setHeaders(HashMap<String, String> headers) {
         mHeaders = headers;
     }
 
-    /**
-     * Returns the underlying socket;
-     */
     public Socket getSocket() {
         return mSocket;
     }
 
-    /**
-     * Establishes the connection.
-     */
     public void connect() throws java.io.IOException {
         String host = mUrl.getHost();
         String path = mUrl.getPath();
@@ -112,18 +59,18 @@ public class WebSocketClient extends Thread {
         }
 
         mOutput = mSocket.getOutputStream();
-        StringBuffer extraHeaders = new StringBuffer();
+        StringBuilder extraHeaders = new StringBuilder();
         if (mHeaders != null) {
             for (Entry<String, String> entry : mHeaders.entrySet()) {
-                extraHeaders.append(entry.getKey() + ": " + entry.getValue() + "\r\n");
+                extraHeaders.append(entry.getKey()).append(": ").append(entry.getValue()).append("\r\n");
             }
         }
 
-        String request = "GET "+path+" HTTP/1.1\r\n" +
+        String request = "GET " + path + " HTTP/1.1\r\n" +
                 "Upgrade: WebSocket\r\n" +
                 "Connection: Upgrade\r\n" +
-                "Host: "+host+"\r\n" +
-                "Origin: "+origin+"\r\n" +
+                "Host: " + host + "\r\n" +
+                "Origin: " + origin + "\r\n" +
                 extraHeaders.toString() +
                 "\r\n";
         mOutput.write(request.getBytes());
@@ -133,7 +80,10 @@ public class WebSocketClient extends Thread {
         BufferedReader reader = new BufferedReader(new InputStreamReader(mInput));
         String header = reader.readLine();
         if (!header.equals("HTTP/1.1 101 Web Socket Protocol Handshake")) {
-            throw new IOException("Invalid handshake response");
+            do {
+                header = reader.readLine();
+            } while (!header.equals(""));
+            throw new IOException("Invalid handshake response" + header);
         }
         do {
             header = reader.readLine();
@@ -148,12 +98,15 @@ public class WebSocketClient extends Thread {
 
         int port = mUrl.getPort();
         if (port == -1) {
-            if (scheme.equals("wss")) {
-                port = 443;
-            } else if (scheme.equals("ws")) {
-                port = 80;
-            } else {
-                throw new IllegalArgumentException("Unsupported scheme");
+            switch (scheme) {
+                case "wss":
+                    port = 443;
+                    break;
+                case "ws":
+                    port = 80;
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unsupported scheme");
             }
         }
 
@@ -165,11 +118,6 @@ public class WebSocketClient extends Thread {
         }
     }
 
-    /**
-     * Sends the specified string as a data frame.
-     * @param str The string to send.
-     * @throws java.io.IOException
-     */
     public void send(String str) throws java.io.IOException {
         if (!mHandshakeComplete) {
             throw new IllegalStateException("Handshake not complete");
@@ -181,17 +129,12 @@ public class WebSocketClient extends Thread {
         mOutput.flush();
     }
 
-    /**
-     * Receives the next data frame.
-     * @return The received data.
-     * @throws java.io.IOException
-     */
     public String recv() throws java.io.IOException {
         if (!mHandshakeComplete) {
             throw new IllegalStateException("Handshake not complete");
         }
 
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
 
         int b = mInput.read();
         if ((b & 0x80) == 0x80) {
@@ -213,28 +156,15 @@ public class WebSocketClient extends Thread {
                 break;
             }
 
-            buf.append((char)b);
+            buf.append((char) b);
         }
 
         return new String(buf.toString().getBytes(), "UTF8");
     }
 
-    /**
-     * Closes the socket.
-     * @throws java.io.IOException
-     */
     public void close() throws java.io.IOException {
         mInput.close();
         mOutput.close();
         mSocket.close();
-    }
-
-    @Override
-    public void run() {
-        try {
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

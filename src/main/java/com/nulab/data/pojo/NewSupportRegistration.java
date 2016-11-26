@@ -5,6 +5,10 @@ package com.nulab.data.pojo;
  */
 public class NewSupportRegistration {
 
+    private String name;
+    private String email;
+    private String requestTopic;
+
     public NewSupportRegistration() {
     }
 
@@ -13,12 +17,6 @@ public class NewSupportRegistration {
         this.email = email;
         this.requestTopic = requestTopic;
     }
-
-    private String name;
-
-    private String email;
-
-    private String requestTopic;
 
     public String getName() {
         return name;

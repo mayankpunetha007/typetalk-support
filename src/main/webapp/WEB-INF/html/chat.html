@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Chat - Customer Module</title>
+    <link type="text/css" rel="stylesheet" href="/css/support-chat.css"/>
+    <script src="https://cdn.jsdelivr.net/sockjs/1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/angularjs-toaster/1.1.0/toaster.min.css" rel="stylesheet"/>
+    <script src="https://code.angularjs.org/1.2.0/angular-animate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angularjs-toaster/1.1.0/toaster.min.js"></script>
+    <script src="/js/chat.js"></script>
+</head>
+<body ng-app="myApp" ng-init="init()" ng-controller="AppCtrl">
+<toaster-container toaster-options="{'time-out': 10000}"></toaster-container>
+<div id="wrapper">
+    <div id="menu">
+        <p class="welcome">Welcome, {{userName}} <b></b></p>
+        <p class="logout">Topic: {{topic}}</p>
+    </div>
+
+    <div id="chatbox">
+        <div class="chat" ng-repeat="chat in chats | orderBy:'time'">
+            <div class="chat">{{chat.user}}: {{chat.chatContent}}</div>
+        </div>
+
+    </div>
+
+    <form name="message" action="">
+        <input name="usermsg" type="text" id="usermsg" size="63"/>
+        <input name="submitmsg" type="submit" id="submitmsg" value="Send"/>
+    </form>
+</div>
+</body>
+</html>

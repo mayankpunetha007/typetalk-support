@@ -5,10 +5,26 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * Created by mayan on 11/19/2016.
+ * Table to create a support ticket for the user
  */
 @Entity
 public class SupportTicket implements Serializable {
+
+    @OneToMany
+    List<ChatDetails> chatDetails;
+    @Id
+    @GeneratedValue
+    private Long id;
+    @Column(nullable = false)
+    private String userName;
+    @Column(nullable = false)
+    private String accessKey;
+    @Column(nullable = false)
+    private String userMail;
+    @Column(nullable = false)
+    private String topic;
+    @Column(unique = true)
+    private Long topicId;
 
     public SupportTicket() {
     }
@@ -19,30 +35,6 @@ public class SupportTicket implements Serializable {
         this.userMail = userMail;
         this.topic = topic;
     }
-
-    @Id
-    @GeneratedValue
-    private Long id;
-
-    @Column(nullable = false)
-    private String userName;
-
-    @Column(nullable = false)
-    private String accessKey;
-
-    @Column(nullable = false)
-    private String userMail;
-
-    @Column(nullable = false)
-    private String topic;
-
-    @OneToMany
-    List<ChatDetails> chatDetails;
-
-    @Column
-    private Long topicId;
-
-
 
     public Long getId() {
         return id;

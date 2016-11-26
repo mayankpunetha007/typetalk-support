@@ -6,12 +6,17 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
 /**
- * Created by mayan on 11/18/2016.
+ * Validate user input
  */
 @Service("validationHelper")
 public class InputValidationUtils {
 
-    public boolean validateEmail(String email){
+    public boolean validateEmail(String email, boolean required) {
+        if (required) {
+            if (email == null || "".equals(email)) {
+                return false;
+            }
+        }
         try {
             InternetAddress emailAddr = new InternetAddress(email);
             emailAddr.validate();

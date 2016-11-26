@@ -1,17 +1,21 @@
 package com.nulab.data.dao;
 
 import com.nulab.data.dto.ChatDetails;
+import com.nulab.data.dto.SupportTicket;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.Repository;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 /**
- * Created by mayan on 11/22/2016.
+ * Support db operations from Chat Details Table
  */
-public interface ChatDetailsDao extends CrudRepository<ChatDetails, Long>, Repository<ChatDetails, Long> {
+@Repository
+@Transactional
+public interface ChatDetailsDao extends CrudRepository<ChatDetails, Long> {
     @Override
-    ChatDetails save(ChatDetails externalData);
+    ChatDetails save(ChatDetails chatDetails);
 
     @Override
     ChatDetails findOne(Long aLong);
@@ -29,8 +33,10 @@ public interface ChatDetailsDao extends CrudRepository<ChatDetails, Long>, Repos
     void delete(Long aLong);
 
     @Override
-    void delete(ChatDetails externalData);
+    void delete(ChatDetails chatDetails);
 
     @Override
     void deleteAll();
+
+    List<ChatDetails> findAllBySupportTicket(SupportTicket supportTicket);
 }

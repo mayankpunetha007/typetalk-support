@@ -7,6 +7,15 @@ import java.util.Date;
  */
 public class Topic {
 
+    private Long id;
+    private String name;
+    private String suggestion;
+    private boolean isDirectMessage;
+    private Date lastPostedAt;
+    private Date createdAt;
+    private String description;
+    private Date updatedAt;
+
     public Topic() {
     }
 
@@ -19,20 +28,6 @@ public class Topic {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
-
-    private Long id;
-
-    private String name;
-
-    private String suggestion;
-
-    private boolean isDirectMessage;
-
-    private Date lastPostedAt;
-
-    private Date createdAt;
-
-    private Date updatedAt;
 
     public Long getId() {
         return id;
@@ -62,7 +57,7 @@ public class Topic {
         return isDirectMessage;
     }
 
-    public void setIsIsDirectMessage(boolean directMessage) {
+    public void setIsDirectMessage(boolean directMessage) {
         this.isDirectMessage = directMessage;
     }
 
@@ -88,5 +83,14 @@ public class Topic {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

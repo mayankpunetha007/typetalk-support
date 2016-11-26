@@ -7,6 +7,9 @@ import org.springframework.stereotype.Repository;
 import javax.transaction.Transactional;
 import java.util.List;
 
+/**
+ * Support DB operations from externalData table
+ */
 @Repository
 @Transactional
 public interface ExternalDataDao extends CrudRepository<ExternalData, Long> {

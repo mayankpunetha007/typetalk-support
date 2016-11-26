@@ -1,21 +1,18 @@
 package com.nulab.data.dao;
 
 import com.nulab.data.dto.SupportTicket;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 /**
- * Created by mayan on 11/19/2016.
+ * Support db operations from support ticket
  */
 @Repository
 @Transactional
-public interface SupportTicketDao extends CrudRepository<SupportTicket, Long>{
+public interface SupportTicketDao extends CrudRepository<SupportTicket, Long> {
 
     @Override
     SupportTicket save(SupportTicket supportTicket);
@@ -38,4 +35,7 @@ public interface SupportTicketDao extends CrudRepository<SupportTicket, Long>{
     @Override
     void delete(SupportTicket supportTicket);
 
+    SupportTicket findByTopicId(Long topicId);
+
+    SupportTicket findByTopic(String topic);
 }

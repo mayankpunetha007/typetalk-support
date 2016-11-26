@@ -7,21 +7,21 @@ import java.util.Date;
  */
 public class Account {
 
-    Long id;
+    private Long id;
 
-    String name;
+    private String name;
 
-    String fullName;
+    private String fullName;
 
-    String suggestion;
+    private String suggestion;
 
-    String imageUrl;
+    private String imageUrl;
 
-    boolean isBot;
+    private boolean isBot;
 
-    Date createdAt;
+    private Date createdAt;
 
-    Date updatedAt;
+    private Date updatedAt;
 
     public Long getId() {
         return id;

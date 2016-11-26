@@ -1,6 +1,7 @@
 package com.nulab.api.registration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nulab.api.HtmlServer;
 import com.nulab.data.pojo.NewSupportRegistration;
 import com.nulab.data.service.ApplicationService;
 import com.nulab.data.util.ValidationUtils;
@@ -23,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Simple Tests to make sure API serialization/deserialization works
  */
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore( {"javax.management.*"})
+@PowerMockIgnore({"javax.management.*"})
 public class RegisterationTest {
 
     @Mock
@@ -33,7 +34,7 @@ public class RegisterationTest {
     private ApplicationService applicationService;
 
     @InjectMocks
-    private Api registeration;
+    private HtmlServer registeration;
 
     private MockMvc mockMvc;
 
@@ -44,8 +45,8 @@ public class RegisterationTest {
     }
 
     @Test
-    public void testTicket() throws Exception{
-        NewSupportRegistration newSupportRegistration = new NewSupportRegistration("a","a@a.com","a");
+    public void testTicket() throws Exception {
+        NewSupportRegistration newSupportRegistration = new NewSupportRegistration("a", "a@a.com", "a");
         mockMvc.perform(post("/register/ticket")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content((new ObjectMapper().writeValueAsString(newSupportRegistration)).getBytes()))
