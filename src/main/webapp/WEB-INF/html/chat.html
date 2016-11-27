@@ -15,23 +15,37 @@
 </head>
 <body ng-app="myApp" ng-init="init()" ng-controller="AppCtrl">
 <toaster-container toaster-options="{'time-out': 10000}"></toaster-container>
-<div id="wrapper">
-    <div id="menu">
-        <p class="welcome">Welcome, {{userName}} <b></b></p>
-        <p class="logout">Topic: {{topic}}</p>
+<div id="wrapper" class="wrapper">
+    <div id="menu" class="menu">
+        <siv class="welcome">Welcome, {{userName}} <b></b></siv>
+        <div class="logout">Topic: {{topic}}</div>
     </div>
 
-    <div id="chatbox">
-        <div class="chat" ng-repeat="chat in chats | orderBy:'time'">
-            <div class="chat">{{chat.user}}: {{chat.chatContent}}</div>
+    <div id="chatbox" class="chatbox">
+        <div class="chats" ng-repeat="chat in chats | orderBy:'time'">
+            <div class="chat {{chat.class}}"> {{chat.user}} : {{chat.chatContent}}</div>
         </div>
 
     </div>
 
-    <form name="message" action="">
-        <input name="usermsg" type="text" id="usermsg" size="63"/>
-        <input name="submitmsg" type="submit" id="submitmsg" value="Send"/>
-    </form>
+    <div id="message" class="message">
+        <input id="input" ng-model="chatMessage" name="usermsg" type="text" class="usermsg" size="1024"/>
+        <input id="send" name="submitmsg" ng-click="sendChat()" type="submit" class="submitmsg" value="Send"/>
+    </div>
 </div>
+<script type="text/javascript">
+window.onload = function() {
+    a= document.getElementById('chatbox');
+    a.scrollTop = a.scrollHeight
+    document.getElementById("input")
+            .addEventListener("keyup", function(event) {
+                event.preventDefault();
+                if (event.keyCode == 13) {
+                    document.getElementById("send").click();
+                }
+                event.stopPropagation();
+            });
+};
+</script>
 </body>
 </html>

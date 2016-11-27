@@ -63,12 +63,17 @@ public class ApplicationService {
      * @param newSupportRegistration
      * @throws MessagingException
      */
-    public void registerNewServiceRequest(NewSupportRegistration newSupportRegistration) throws MessagingException {
+    public SupportTicket registerNewServiceRequest(NewSupportRegistration newSupportRegistration) throws MessagingException {
         byte[] bytes = secureRandom.generateSeed(64);
         String accessKey = bytesToHex(bytes);
-        SupportTicket supportTicket = new SupportTicket(newSupportRegistration.getName(), accessKey, newSupportRegistration.getEmail(), newSupportRegistration.getRequestTopic());
+        SupportTicket supportTicket = new SupportTicket(newSupportRegistration.getName(), accessKey, newSupportRegistration.getEmail(), "SUPPORT:"+newSupportRegistration.getRequestTopic());
         supportTicket = supportTicketDao.save(supportTicket);
-        emailSendingService.sendNewSupportEmail(supportTicket.getUserMail(), supportTicket.getId(), supportTicket.getAccessKey());
+        if(applicationConfig.isConfirmViaMail()) {
+            emailSendingService.sendNewSupportEmail(supportTicket.getUserMail(), supportTicket.getId(), supportTicket.getAccessKey());
+            return null;
+        }else{
+            return supportTicket;
+        }
     }
 
     /**
@@ -91,12 +96,6 @@ public class ApplicationService {
         Topic topic = new Topic();
         topic.setId(supportTicket.getTopicId());
         try {
-            ChatDetails chatDetails = new ChatDetails();
-            chatDetails.setSupport(false);
-            chatDetails.setChatContent(message);
-            chatDetails.setSupportTicket(supportTicket);
-            chatDetails.setTime(new Date(System.currentTimeMillis()));
-            chatDetailsDao.save(chatDetails);
             message = typeTalkService.postMessageToTopic(topic, message);
         } catch (IOException e) {
             errorMessages.add("Could not post message");

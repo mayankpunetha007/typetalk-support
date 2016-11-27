@@ -1,6 +1,7 @@
 package com.nulab.api;
 
 import com.nulab.api.response.AppApiResponse;
+import com.nulab.data.dto.SupportTicket;
 import com.nulab.data.pojo.NewSupportRegistration;
 import com.nulab.data.service.ApplicationService;
 import com.nulab.data.util.ValidationUtils;
@@ -25,11 +26,15 @@ public class Api {
     @RequestMapping(method = RequestMethod.POST, value = "/register/ticket", consumes = "application/json")
     public AppApiResponse ticket(@RequestBody NewSupportRegistration newSupportRegistration) {
         List<String> errrors = validationUtils.validate(newSupportRegistration);
-        AppApiResponse<String> appApiResponse = new AppApiResponse<>();
+        AppApiResponse appApiResponse = new AppApiResponse<>();
         if (errrors.size() == 0) {
             try {
-                applicationService.registerNewServiceRequest(newSupportRegistration);
-                appApiResponse.setResponse("success");
+                SupportTicket supportTicket = applicationService.registerNewServiceRequest(newSupportRegistration);
+                if(supportTicket == null) {
+                    appApiResponse.setResponse("success");
+                }else{
+                    appApiResponse.setResponse(supportTicket);
+                }
             } catch (Exception e) {
                 errrors.add("System Error");
                 appApiResponse.setErrorMessages(errrors);
@@ -45,4 +50,11 @@ public class Api {
     public AppApiResponse sendToSupport(@PathVariable Long id, @PathVariable String accessToken) {
         return applicationService.startNewSupport(id, accessToken);
     }
+
+    @ApiOperation(value="/message/{id}/{accessToken}", notes = "Send message to topic identified with the given id and accessToken")
+    @RequestMapping(method = RequestMethod.POST, value = "/message/{id}/{accessToken}")
+    public AppApiResponse sendMessageToSupport(@PathVariable Long id, @PathVariable String accessToken, @RequestBody String message) {
+        return applicationService.sendMessageToGroup(id, accessToken, message);
+    }
+
 }

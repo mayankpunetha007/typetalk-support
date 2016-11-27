@@ -35,7 +35,7 @@ public class ExternalData implements Serializable {
     @Column(nullable = false)
     private boolean support;
 
-    @Column
+    @Column(length=1024)
     private String message;
 
     public Long getId() {

@@ -45,8 +45,11 @@ public class TalkingController {
     }*/
 
     @MessageMapping(value = "/talk/{id}/{accessToken}")
-    public String simple(@DestinationVariable String id, @DestinationVariable String accessToken) {
+    @SendTo(value = "/talk/{id}/{accessToken}")
+    public String simple(@DestinationVariable Long id, @DestinationVariable String accessToken) {
+        logger.info(id+accessToken);
         return id + accessToken;
     }
+
 
 }

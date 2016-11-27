@@ -1,10 +1,12 @@
 package com.nulab.config;
 
+import com.nulab.data.pojo.inner.Account;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -23,6 +25,7 @@ import java.util.List;
 @ConfigurationProperties
 @Configuration
 @EnableWebMvc
+@EnableAspectJAutoProxy
 public class ApplicationConfig extends WebMvcConfigurerAdapter {
 
     private static String invalidTopicSubject;
@@ -46,6 +49,11 @@ public class ApplicationConfig extends WebMvcConfigurerAdapter {
     private static List<String> typetalkSupportAccountId;
 
     private static String typetalkOrganisation;
+
+    private static Account myAccount;
+
+    private static boolean confirmViaMail = true;
+
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     public String getTypetalkClientId() {
@@ -62,6 +70,14 @@ public class ApplicationConfig extends WebMvcConfigurerAdapter {
 
     public void setTypetalkClientSecret(String typetalkClientSecret) {
         ApplicationConfig.typetalkClientSecret = typetalkClientSecret;
+    }
+
+    public static Account getMyAccount() {
+        return myAccount;
+    }
+
+    public static void setMyAccount(Account myAccount) {
+        ApplicationConfig.myAccount = myAccount;
     }
 
     public List<String> getTypetalkSupportGroups() {
@@ -145,7 +161,7 @@ public class ApplicationConfig extends WebMvcConfigurerAdapter {
     }
 
     public static boolean isSupportAccount(Long id) {
-        return typetalkSupportAccountId.contains(id+"");
+        return !myAccount.getId().equals(id);
     }
 
     @Bean
@@ -167,6 +183,24 @@ public class ApplicationConfig extends WebMvcConfigurerAdapter {
                 .setCachePeriod(0);
         registry.addResourceHandler("/css/**").addResourceLocations("/WEB-INF/css/")
                 .setCachePeriod(0);
+        registry.addResourceHandler("/images/**").addResourceLocations("/WEB-INF/images/")
+                .setCachePeriod(0);
+    }
+
+    public boolean isConfirmViaMail() {
+        return confirmViaMail;
+    }
+
+    public void setConfirmViaMail(boolean confirmViaMail) {
+        ApplicationConfig.confirmViaMail = confirmViaMail;
+    }
+
+    public Logger getLogger() {
+        return logger;
+    }
+
+    public void setLogger(Logger logger) {
+        this.logger = logger;
     }
 }
 

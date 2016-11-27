@@ -1,6 +1,7 @@
 package com.nulab.api.registration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nulab.api.Api;
 import com.nulab.api.HtmlServer;
 import com.nulab.data.pojo.NewSupportRegistration;
 import com.nulab.data.service.ApplicationService;
@@ -25,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore({"javax.management.*"})
-public class RegisterationTest {
+public class ApiTest {
 
     @Mock
     private ValidationUtils validationUtils;
@@ -34,7 +35,7 @@ public class RegisterationTest {
     private ApplicationService applicationService;
 
     @InjectMocks
-    private HtmlServer registeration;
+    private Api registeration;
 
     private MockMvc mockMvc;
 
@@ -50,6 +51,25 @@ public class RegisterationTest {
         mockMvc.perform(post("/register/ticket")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content((new ObjectMapper().writeValueAsString(newSupportRegistration)).getBytes()))
+                .andExpect(status().isOk());
+        newSupportRegistration = new NewSupportRegistration("Mayank ", "red", "a");
+    }
+
+    @Test
+    public void testSendToSupport() throws Exception {
+        NewSupportRegistration newSupportRegistration = new NewSupportRegistration("a", "a@a.com", "a");
+        mockMvc.perform(post("/messages/1/asdasd")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content((new ObjectMapper().writeValueAsString(newSupportRegistration)).getBytes()))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testSendMessageToSupport() throws Exception {
+        NewSupportRegistration newSupportRegistration = new NewSupportRegistration("a", "a@a.com", "a");
+        mockMvc.perform(post("/message/1/asdasds")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(("Hello").getBytes()))
                 .andExpect(status().isOk());
     }
 

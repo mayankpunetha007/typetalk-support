@@ -13,18 +13,23 @@ import java.util.Date;
 @Entity
 public class ChatDetails implements Serializable {
 
-    @ManyToOne
-    private
-    SupportTicket supportTicket;
     @Id
     @GeneratedValue
     private Long id;
+
     @Column(nullable = false)
     private boolean support;
-    @Column(nullable = false)
+
+    @Column(nullable = false,  length=1024)
     private String chatContent;
+
     @Column(nullable = false)
     private Date time;
+
+    @ManyToOne
+    private
+    SupportTicket supportTicket;
+
 
     public Long getId() {
         return id;

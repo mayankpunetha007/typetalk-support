@@ -12,13 +12,20 @@ app.controller('reg', ['$scope', '$http', 'toaster', function ($scope, $http, to
             'name': $scope.name
         }).then(function (res) {
             if (res.data.errors) {
-                toaster.pop({
-                    type: 'error',
-                    title: res.data.errorMessages,
-                    timeout: 5000
-                });
+                var errors = res.data.errorMessages;
+                for(var i=0;i<errors.length;i++) {
+                    toaster.pop({
+                        type: 'error',
+                        title: errors[i],
+                        timeout: 5000
+                    });
+                }
             } else {
-                window.location = "/success";
+                if(res.data.response == 'success') {
+                    window.location = "/success";
+                }else {
+                    window.location = "/support/"+res.data.response.id+"/"+res.data.response.accessKey;
+                }
             }
         });
     }

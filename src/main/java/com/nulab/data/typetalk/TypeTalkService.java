@@ -49,17 +49,27 @@ public class TypeTalkService {
 
 
     private static boolean initialized = false;
+
     @Autowired
     ExternalDataDao externalDataDao;
+
     private String accessToken;
+
     private ObjectMapper objectMapper = new ObjectMapper();
+
     private CloseableHttpClient client;
+
     private Logger logger = LoggerFactory.getLogger(getClass());
+
     private long lastGrant;
+
     private long expiry;
+
     private String refreshToken;
+
     @Autowired
     private ApplicationConfig applicationConfig;
+
     @Autowired
     private SupportTicketDao supportTicketDao;
 
@@ -68,6 +78,8 @@ public class TypeTalkService {
 
     @Autowired
     private SimpMessagingTemplate template;
+
+    private static Account adminUserAccount = null;
 
 
     public TypeTalkService() {
@@ -94,7 +106,7 @@ public class TypeTalkService {
      * To make sure the services always have a valid authorization token
      * @throws IOException
      */
-    @Before("execution(* com.nulab.data.typetalk.*")
+    @Before("execution(* com.nulab.data.typetalk.TypeTalkService.*(..)")
     void reinitializeToken() throws IOException {
         if (isActive()) {
             initToken();
@@ -135,6 +147,8 @@ public class TypeTalkService {
                 expiry = obj.getLong("expires_in");
                 lastGrant = System.currentTimeMillis();
                 initialized = true;
+                adminUserAccount = fetchMyAccount();
+                applicationConfig.setMyAccount(adminUserAccount);
             } else {
                 client = HttpClientBuilder.create().build();
                 List<NameValuePair> tokenParams = new ArrayList<>();
@@ -237,11 +251,15 @@ public class TypeTalkService {
      * @throws IOException
      */
     public Topic createTopic(String topicSubject) throws IOException {
+        client = HttpClientBuilder.create().build();
         Map<String, Object> tokenParams = new HashMap<>();
         tokenParams.put("name", topicSubject);
         tokenParams.put("spaceKey", applicationConfig.getTypetalkOrganisation());
-        tokenParams.put("addAccountIds ", applicationConfig.getTypetalkSupportAccountId());
-        tokenParams.put("addGroupIds ", applicationConfig.getTypetalkSupportGroups());
+        /*for(int i=0;i<applicationConfig.getTypetalkSupportAccountId().size();i++){
+            tokenParams.put("addAccountIds["+i+"]", applicationConfig.getTypetalkSupportAccountId());
+        }*/
+        tokenParams.put("addAccountIds", applicationConfig.getTypetalkSupportAccountId());
+        tokenParams.put("addGroupIds", applicationConfig.getTypetalkSupportGroups());
         HttpPost createTopicPost = new HttpPost("https://typetalk.in/api/v1/topics");
         createTopicPost.addHeader("Authorization", "Bearer " + accessToken);
         createTopicPost.setEntity(new StringEntity(objectMapper.writeValueAsString(tokenParams), ContentType.create("application/json")));
@@ -264,6 +282,7 @@ public class TypeTalkService {
      * @throws IOException
      */
     public String postMessageToTopic(Topic topic, String message) throws IOException {
+        client = HttpClientBuilder.create().build();
         List<NameValuePair> tokenParams = new ArrayList<>();
         tokenParams.add(new BasicNameValuePair("message", message));
         HttpPost createTopicPost = new HttpPost(String.format("https://typetalk.in/api/v1/topics/%s", topic.getId()));
@@ -307,7 +326,7 @@ public class TypeTalkService {
                             Map<String, ExternalData> allMessages = fetchAndAddAllImpData();
                             for (Map.Entry<String, ExternalData> e : allMessages.entrySet()) {
                                 logger.info("sendiing to /topic/" + e.getKey());
-                                template.convertAndSend("/topic/"+e.getKey(), e.getValue());
+                                template.convertAndSend("/talk/"+e.getKey(), e.getValue());
                             }
                         }
                     }
@@ -374,9 +393,7 @@ public class TypeTalkService {
             if (supportTicket != null) {
                 externalData.setTopicId(0L);
                 externalData.setAccountId(0L);
-                if (!externalData.isSupport()) {
-                    urlDataMapping.put(supportTicket.getId() + "/" + supportTicket.getAccessKey(), externalData);
-                }
+                urlDataMapping.put(supportTicket.getId() + "/" + supportTicket.getAccessKey(), externalData);
                 ChatDetails chatDetails = new ChatDetails();
                 chatDetails.setChatContent(externalData.getMessage());
                 chatDetails.setSupport(externalData.isSupport());
@@ -387,8 +404,27 @@ public class TypeTalkService {
         }
         externalDataDao.delete(externalDataList);
         chatDetailsDao.save(chatDetailsList);
-        externalDataList.forEach(m -> m.setId(0L));
+        chatDetailsList.forEach(m -> m.setSupportTicket(null));
         return urlDataMapping;
+    }
+
+    /**
+     * Get account that will be used for customer based on client key and pass
+     * Since client is God! :D and I could not figure out a way to get a
+     * guest account key from the document we will post all meesages from the main account
+     * Due to this problem there is alos a limitation that owner should never ever post on support groups
+     * @return
+     */
+    private Account fetchMyAccount() throws IOException {
+        client = HttpClientBuilder.create().build();
+        List<NameValuePair> tokenParams = new ArrayList<>();
+        HttpGet get = new HttpGet("https://typetalk.in/api/v1/profile");
+        get.addHeader("Authorization", "Bearer " + accessToken);
+        HttpResponse response = client.execute(get);
+        InputStream inputStream = response.getEntity().getContent();
+        String theString = convertStreamToString(inputStream);
+        JSONObject object = new JSONObject(theString);
+        return objectMapper.readValue(object.getJSONObject("account").toString(), Account.class);
     }
 
     /**

@@ -90,3 +90,9 @@ label.light {
     }
 
 }
+
+.loading{
+    visibility: hidden;
+    top: 25%;
+    left: 25%;
+}

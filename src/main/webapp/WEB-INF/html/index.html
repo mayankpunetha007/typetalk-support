@@ -6,12 +6,13 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
     <script src="https://code.angularjs.org/1.2.0/angular-animate.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angularjs-toaster/1.1.0/toaster.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/angularjs-toaster/1.1.0/toaster.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="/css/style.css">
     <script src="/js/registration.js"></script>
 </head>
 
 <body ng-app="support">
-
+<toaster-container toaster-options="{'time-out': 10000}"></toaster-container>
 <form method="post" ng-controller="reg">
     <h1>Create a Support Ticket</h1>
 

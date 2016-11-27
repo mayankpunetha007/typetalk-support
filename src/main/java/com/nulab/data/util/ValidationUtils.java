@@ -39,10 +39,13 @@ public class ValidationUtils {
         if (!inputValidationUtils.validateEmail(newSupportRegistration.getEmail(), true)) {
             errors.add(applicationConfig.getInvalidEmail());
         }
-        if (newSupportRegistration.getRequestTopic().length() == 0 || newSupportRegistration.getRequestTopic().length() > 60) {
-            errors.add(applicationConfig.getInvalidTopicSubject());
+        if (newSupportRegistration.getName()== null || newSupportRegistration.getName().length()== 0 || newSupportRegistration.getName().length() > 64) {
+            errors.add("Name length should be greater than zero and less than 64");
         }
-        if (supportTicketDao.findByTopic(newSupportRegistration.getRequestTopic()) != null) {
+        if (newSupportRegistration.getRequestTopic()==null || newSupportRegistration.getRequestTopic().length() == 0 || newSupportRegistration.getRequestTopic().length() > 50) {
+            errors.add("Topic length should be greater than zero and less than 50");
+        }
+        if (newSupportRegistration.getRequestTopic() == null && supportTicketDao.findByTopic("SUPPORT:"+newSupportRegistration.getRequestTopic()) != null) {
             errors.add("Topic Already exists");
         }
         return errors;
