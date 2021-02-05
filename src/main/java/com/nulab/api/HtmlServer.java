@@ -21,6 +21,11 @@ public class HtmlServer {
         return "html/index.html";
     }
 
+    @RequestMapping({ "/test", "/test.html", "/test.jsp", "/test", "/test.html", "/test.jsp"})
+    public String test() {
+        return "html/test.html";
+    }
+
     @RequestMapping({"/success", "/success.html", "/success.jsp", "/success.php"})
     public String success() {
         return "html/succesreg.html";

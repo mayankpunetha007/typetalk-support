@@ -42,12 +42,6 @@ public class EmailSendingService {
         });
     }
 
-    @PostConstruct
-    void init() {
-        props.put("mail.smtp.user", applicationConfig.getGmailId());
-        props.put("mail.smtp.password", applicationConfig.getGmailPassword());
-    }
-
     /**
      * Send activation and support group url mail to the given email Id with the given user id and accesCode
      * Please ensure that baseurl is correct in application.properties to make sure the url sent to the user

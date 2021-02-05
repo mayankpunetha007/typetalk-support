@@ -6,55 +6,61 @@ import com.nulab.data.pojo.NewSupportRegistration;
 import com.nulab.data.service.ApplicationService;
 import com.nulab.data.util.ValidationUtils;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by mayan on 11/24/2016.
  */
 @RestController
 public class Api {
+    private final Map<String, List> data;
     @Autowired
     private ValidationUtils validationUtils;
 
     @Autowired
     private ApplicationService applicationService;
 
-    @ApiOperation(value="/register/ticket", notes = "Register a new ticket for the given user and send email to the user")
-    @RequestMapping(method = RequestMethod.POST, value = "/register/ticket", consumes = "application/json")
-    public AppApiResponse ticket(@RequestBody NewSupportRegistration newSupportRegistration) {
-        List<String> errrors = validationUtils.validate(newSupportRegistration);
-        AppApiResponse appApiResponse = new AppApiResponse<>();
-        if (errrors.size() == 0) {
-            try {
-                SupportTicket supportTicket = applicationService.registerNewServiceRequest(newSupportRegistration);
-                if(supportTicket == null) {
-                    appApiResponse.setResponse("success");
-                }else{
-                    appApiResponse.setResponse(supportTicket);
-                }
-            } catch (Exception e) {
-                errrors.add("System Error");
-                appApiResponse.setErrorMessages(errrors);
-            }
-        } else {
-            appApiResponse.setErrorMessages(errrors);
+    List<Object[]> readData;
+
+    public Api(){
+        Test test = new Test();
+        readData = test.readData();
+        Map<String, List> data = new LinkedHashMap<>();
+        for(int i=0;i<readData.get(0).length;i++){
+            data.put((String) readData.get(0)[i], new ArrayList());
         }
-        return appApiResponse;
+        for(int i=1;i<readData.size();i++){
+            for(int j=0;j<readData.get(i).length;j++) {
+                data.get((String) readData.get(0)[j]).add(readData.get(i)[j]);
+            }
+        }
+        this.data = data;
+
     }
 
-    @ApiOperation(value="/messages/{id}/{accessToken}", notes = "Get all messages in the topic identified by given user and authorized by given accessTOken")
-    @RequestMapping(method = RequestMethod.POST, value = "/messages/{id}/{accessToken}")
-    public AppApiResponse sendToSupport(@PathVariable Long id, @PathVariable String accessToken) {
-        return applicationService.startNewSupport(id, accessToken);
+    @ApiOperation(value="/get/data", notes = "Register a new ticket for the given user and send email to the user")
+    @RequestMapping(method = RequestMethod.GET, value = "/get/data/{from}/{upto}")
+    public AppApiResponse ticket(@PathVariable Long from, @PathVariable Long upto) {
+        AppApiResponse apiResponse = new AppApiResponse();
+        Map<String, List> values = new HashMap<>();
+        for(Map.Entry<String, List> s: data.entrySet()){
+            values.put(s.getKey(), s.getValue().subList(0, s.getValue().size()-1));
+        }
+        apiResponse.setResponse(data);
+        return apiResponse;
     }
 
-    @ApiOperation(value="/message/{id}/{accessToken}", notes = "Send message to topic identified with the given id and accessToken")
-    @RequestMapping(method = RequestMethod.POST, value = "/message/{id}/{accessToken}")
-    public AppApiResponse sendMessageToSupport(@PathVariable Long id, @PathVariable String accessToken, @RequestBody String message) {
-        return applicationService.sendMessageToGroup(id, accessToken, message);
+    @ApiOperation(value="/get/data1", notes = "Register a new ticket for the given user and send email to the user")
+    @RequestMapping(method = RequestMethod.GET, value = "/get/data1/{from}/{upto}")
+    public AppApiResponse ticket2(@PathVariable Long from, @PathVariable Long upto) {
+        AppApiResponse apiResponse = new AppApiResponse();
+        apiResponse.setResponse(readData);
+        return apiResponse;
     }
-
 }

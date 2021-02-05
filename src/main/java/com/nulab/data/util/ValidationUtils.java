@@ -2,7 +2,6 @@ package com.nulab.data.util;
 
 import com.nulab.common.InputValidationUtils;
 import com.nulab.config.ApplicationConfig;
-import com.nulab.data.dao.SupportTicketDao;
 import com.nulab.data.dto.SupportTicket;
 import com.nulab.data.pojo.NewSupportRegistration;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +24,6 @@ public class ValidationUtils {
     @Autowired
     private ApplicationConfig applicationConfig;
 
-    @Autowired
-    private SupportTicketDao supportTicketDao;
-
 
     /**
      * Validate NewSupportRegistration request
@@ -44,9 +40,6 @@ public class ValidationUtils {
         }
         if (newSupportRegistration.getRequestTopic()==null || newSupportRegistration.getRequestTopic().length() == 0 || newSupportRegistration.getRequestTopic().length() > 50) {
             errors.add("Topic length should be greater than zero and less than 50");
-        }
-        if (newSupportRegistration.getRequestTopic() == null && supportTicketDao.findByTopic("SUPPORT:"+newSupportRegistration.getRequestTopic()) != null) {
-            errors.add("Topic Already exists");
         }
         return errors;
     }

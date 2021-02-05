@@ -22,7 +22,6 @@ import java.util.List;
  * And initialize Web Configuration
  */
 @Component
-@ConfigurationProperties
 @Configuration
 @EnableWebMvc
 @EnableAspectJAutoProxy

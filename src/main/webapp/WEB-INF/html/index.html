@@ -1,34 +1,135 @@
 <html>
-
 <head>
-    <meta charset="utf-8">
-    <title>Sign Up Form</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
-    <script src="https://code.angularjs.org/1.2.0/angular-animate.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angularjs-toaster/1.1.0/toaster.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/angularjs-toaster/1.1.0/toaster.min.css" rel="stylesheet"/>
-    <link rel="stylesheet" href="/css/style.css">
-    <script src="/js/registration.js"></script>
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.stock.min.js"></script>
 </head>
-
-<body ng-app="support">
-<toaster-container toaster-options="{'time-out': 10000}"></toaster-container>
-<form method="post" ng-controller="reg">
-    <h1>Create a Support Ticket</h1>
-
-    <label for="name">Name:</label>
-    <input type="text" id="name" ng-model="name" name="name">
-
-    <label for="mail">Email:</label>
-    <input type="email" id="mail" ng-model="email" name="user_email">
-
-    <label for="topic">Request Topic:</label>
-    <input type="text" id="topic" ng-model="topic" name="topic">
-
-    <button id="submit" ng-click="sendEmail()" type="submit">Send Me URL</button>
-
-</form>
+<body >
+<div id="chart" style="width: 900px; height: 500px"></div>
+<script type="text/javascript">
 
 
+    var tradePrice= [];
+    var oneMinEMA= [];
+    var fiveMinEMA= [];
+    var tenMinEMA= [];
+    var thirtyMinEMA= [];
+    var stockChart = new CanvasJS.StockChart("chart", {
+        title: {
+            text: "Async Data Loading in StockChart"
+        },
+        rangeChanged: rangeChanged,
+        charts: [{
+            axisY2: {
+                prefix: "Yen"
+            },
+            data: [{
+                type: "line",
+                axisYType: "secondary",
+                dataPoints: tradePrice,
+                name: "TradePrice"
+            },
+            {
+                type: "line",
+                axisYType: "secondary",
+                dataPoints: oneMinEMA,
+                name: "OneMinEMA"
+            },
+            {
+                type: "line",
+                axisYType: "secondary",
+                dataPoints: fiveMinEMA,
+                name: "FiveMinEMA"
+            },
+            {
+                type: "line",
+                axisYType: "secondary",
+                dataPoints: tenMinEMA,
+                name: "TenMinEMA"
+            },
+            {
+                type: "line",
+                axisYType: "secondary",
+                dataPoints: thirtyMinEMA,
+                name: "ThirtyMinEMA"
+            }
+            ]
+        }]
+    });
+
+    function httpGetAsync(theUrl, callback)
+    {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.onreadystatechange = function() {
+            if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+                callback(xmlHttp.responseText);
+        }
+        xmlHttp.open("GET", theUrl, true); // true for asynchronous
+        xmlHttp.send(null);
+    }
+
+    function extracted(text, stockChart) {
+        data = text;
+        stockChart.options.charts[0].data[0].dataPoints = [];
+        for (var i = 0; i < data.time.length; i++) {
+            if(data.time[i] && data.oneMinEMA[i] && data.fiveMinEMA[i] && data.tenMinEMA[i] && data.fifteenMinEMA[i]){
+                var tradePrice = {
+                    x: new Date(data.time[i]),
+                    y: parseFloat(data.tradePrice1[i])
+                };
+                var oneMinEMA = {
+                    x: new Date(data.time[i]),
+                    y: parseFloat(data.oneMinEMA[i])
+                };
+                var fiveMinEMA = {
+                    x: new Date(data.time[i]),
+                    y: parseFloat(data.fiveMinEMA[i])
+                };
+                var tenMinEMA = {
+                    x: new Date(data.time[i]),
+                    y: parseFloat(data.tenMinEMA[i])
+                };
+                var thirtyMinEMA = {
+                    x: new Date(data.time[i]),
+                    y: parseFloat(data.fifteenMinEMA[i])
+                };
+                stockChart.options.charts[0].data[0].dataPoints.push(tradePrice);
+                stockChart.options.charts[0].data[1].dataPoints.push(oneMinEMA);
+                stockChart.options.charts[0].data[2].dataPoints.push(fiveMinEMA);
+                stockChart.options.charts[0].data[3].dataPoints.push(tenMinEMA);
+                stockChart.options.charts[0].data[4].dataPoints.push(thirtyMinEMA);
+
+            }
+
+        }
+        stockChart.render();
+    }
+
+    httpGetAsync("/get/data/0/0", function (text){
+
+        var dataPoints1 = [], dataPoints2 = [];
+        text = JSON.parse(text).response;
+        extracted(text, stockChart);
+    });
+
+    function rangeChanged(e) {
+        var minimum = parseInt(e.minimum );
+        var maximum = parseInt(e.maximum );
+        var url = "/get/data/"+minimum+"/"+maximum;
+        $("#loader").css("display", "block");
+        $.getJSON(url, function(data) {
+            data = JSON.parse(text).response;
+            extracted(data);
+        });
+    }
+    $("#loader").css("display", "block");
+
+
+
+
+
+</script>
+<script type="text/javascript">
+
+</script>
 </body>
 </html>

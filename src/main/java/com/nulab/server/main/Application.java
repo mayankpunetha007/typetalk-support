@@ -13,11 +13,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  * Main class to launch Server
  */
 @SpringBootApplication
-@EnableAutoConfiguration
 @Configuration
-@EnableJpaRepositories(basePackages = "com.nulab.data.*")
 @ComponentScan("com.nulab.*")
-@EntityScan("com.nulab.*")
 public class Application {
 
     public static void main(String[] args) {

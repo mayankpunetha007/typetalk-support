@@ -1,11 +1,7 @@
 package com.nulab.data.typetalk;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.reflect.TypeToken;
 import com.nulab.config.ApplicationConfig;
-import com.nulab.data.dao.ChatDetailsDao;
-import com.nulab.data.dao.ExternalDataDao;
-import com.nulab.data.dao.SupportTicketDao;
 import com.nulab.data.dto.ChatDetails;
 import com.nulab.data.dto.ExternalData;
 import com.nulab.data.dto.SupportTicket;
@@ -36,22 +32,17 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.*;
 
 /**
  * Service to access Typetalk ApI
  */
-@ConfigurationProperties
 @Service("typeTalkService")
 public class TypeTalkService {
 
 
     private static boolean initialized = false;
-
-    @Autowired
-    ExternalDataDao externalDataDao;
 
     private String accessToken;
 
@@ -69,12 +60,6 @@ public class TypeTalkService {
 
     @Autowired
     private ApplicationConfig applicationConfig;
-
-    @Autowired
-    private SupportTicketDao supportTicketDao;
-
-    @Autowired
-    private ChatDetailsDao chatDetailsDao;
 
     @Autowired
     private SimpMessagingTemplate template;
@@ -101,24 +86,7 @@ public class TypeTalkService {
         return s.hasNext() ? s.next() : "";
     }
 
-    /**
-     * THis ensures that the authentication token is re-requested before expiry
-     * To make sure the services always have a valid authorization token
-     * @throws IOException
-     */
-    @Before("execution(* com.nulab.data.typetalk.TypeTalkService.*(..)")
-    void reinitializeToken() throws IOException {
-        if (isActive()) {
-            initToken();
-            logger.info("Token was reinitialized due to expiry");
-        }
-    }
 
-    @PostConstruct
-    public void init() {
-        initToken();
-        startLisTening();
-    }
 
     /**
      * Initialize a access_token
@@ -306,7 +274,6 @@ public class TypeTalkService {
             WebSocketClient ws = null;
             while (true) {
                 try {
-                    reinitializeToken();
                     HashMap<String, String> headers = new HashMap<>();
                     headers.put("Authorization", "Bearer " + accessToken);
                     ws = new WebSocketClient(URI.create(destUri));
@@ -363,19 +330,7 @@ public class TypeTalkService {
      * @param message
      */
     private void addDataIfImp(Topic topic, Account account, String message) {
-        if (supportTicketDao.findByTopicId(topic.getId()) != null) {
-            ExternalData externalData = new ExternalData();
-            externalData.setWatched(false);
-            if (ApplicationConfig.isSupportAccount(account.getId()))
-                externalData.setSupport(true);
-            else
-                externalData.setSupport(false);
-            externalData.setAccountId(account.getId());
-            externalData.setTopicId(topic.getId());
-            externalData.setCreationTime(new Date(System.currentTimeMillis()));
-            externalData.setMessage(message);
-            externalDataDao.save(externalData);
-        }
+
 
     }
 
@@ -384,27 +339,7 @@ public class TypeTalkService {
      * @return
      */
     private Map<String, ExternalData> fetchAndAddAllImpData() {
-        List<ExternalData> externalDataList = externalDataDao.findAll();
         Map<String, ExternalData> urlDataMapping = new HashMap<>();
-        List<ChatDetails> chatDetailsList = new ArrayList<>();
-        for (ExternalData externalData : externalDataList) {
-            Long topicId = externalData.getTopicId();
-            SupportTicket supportTicket = supportTicketDao.findByTopicId(topicId);
-            if (supportTicket != null) {
-                externalData.setTopicId(0L);
-                externalData.setAccountId(0L);
-                urlDataMapping.put(supportTicket.getId() + "/" + supportTicket.getAccessKey(), externalData);
-                ChatDetails chatDetails = new ChatDetails();
-                chatDetails.setChatContent(externalData.getMessage());
-                chatDetails.setSupport(externalData.isSupport());
-                chatDetails.setTime(externalData.getCreationTime());
-                chatDetails.setSupportTicket(supportTicket);
-                chatDetailsList.add(chatDetails);
-            }
-        }
-        externalDataDao.delete(externalDataList);
-        chatDetailsDao.save(chatDetailsList);
-        chatDetailsList.forEach(m -> m.setSupportTicket(null));
         return urlDataMapping;
     }
 

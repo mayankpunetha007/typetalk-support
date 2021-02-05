@@ -1,9 +1,7 @@
 package com.nulab.api;
 
 import com.nulab.api.response.AppApiResponse;
-import com.nulab.data.dao.SupportTicketDao;
 import com.nulab.data.dto.ExternalData;
-import com.nulab.data.dto.SupportTicket;
 import com.nulab.data.service.ApplicationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,9 +23,6 @@ public class TalkingController {
 
     @Autowired
     private ApplicationService applicationService;
-
-    @Autowired
-    private SupportTicketDao supportTicketDao;
 
     @SendTo("")
     public AppApiResponse publishToClient(@PathVariable Long id, @PathVariable String accessToken, @RequestBody ExternalData externalData) {
